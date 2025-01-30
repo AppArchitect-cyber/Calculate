@@ -3,305 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Extract and Total Amounts</title>
+    <title>Withdrawal Calculator</title>
     <style>
-        /* Body Styling */
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f7f8fc;
-            margin: 0;
-            padding: 0;
+            font-family: Arial, sans-serif;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            box-sizing: border-box;
-            overflow: hidden;
-            animation: fadeIn 1s ease-in-out;
+            margin: 0;
+            background-color: #eef2f7;
         }
-
-        /* FadeIn Animation */
-        @keyframes fadeIn {
-            0% {
-                opacity: 0;
-            }
-            100% {
-                opacity: 1;
-            }
-        }
-
-        /* Heading Styling */
-        h2 {
-            font-size: 30px;
-            color: #333;
-            margin-bottom: 20px;
-            text-align: center;
-            animation: slideInFromTop 1s ease-in-out;
-        }
-
-        /* SlideIn Animation */
-        @keyframes slideInFromTop {
-            0% {
-                transform: translateY(-50px);
-                opacity: 0;
-            }
-            100% {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        /* File Upload Input Styling */
-        #fileUpload {
-            margin-top: 20px;
-            padding: 12px;
-            font-size: 16px;
-            color: #333;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background-color: #fff;
-            cursor: pointer;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-            display: inline-block;
-            width: auto;
-            opacity: 0;
-            animation: fadeIn 2s forwards;
-        }
-
-        /* Textarea Styling */
-        textarea {
+        .container {
             width: 90%;
-            max-width: 600px;
-            height: 200px;
+            max-width: 400px;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        input, button {
+            width: 100%;
             padding: 12px;
-            font-size: 16px;
-            color: #333;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            resize: none;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        textarea:focus {
-            border-color: #4CAF50;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            outline: none;
-        }
-
-        /* Button Styling */
-        button {
-            margin-top: 20px;
-            padding: 12px 30px;
-            font-size: 18px;
-            color: #fff;
-            background-color: #4CAF50;
+            margin: 10px 0;
             border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            font-size: 16px;
         }
-
+        input {
+            background: #f9f9f9;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+        }
         button:hover {
             background-color: #45a049;
-            transform: scale(1.05);
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
         }
-
-        button:active {
-            background-color: #388e3c;
-            transform: scale(1);
+        #output, #result, #total, #counter {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            max-height: 200px;
+            overflow-y: auto;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: left;
         }
-
-        /* Clear Button Styling */
-        #clearButton {
-            margin-top: 10px;
-            padding: 12px 30px;
-            font-size: 18px;
-            color: #fff;
-            background-color: #f44336;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-        }
-
-        #clearButton:hover {
-            background-color: #e53935;
-            transform: scale(1.05);
-        }
-
-        #clearButton:active {
-            background-color: #c62828;
-            transform: scale(1);
-        }
-
-        /* Result Section Styling */
-        #result, #total, #counter {
-            margin-top: 20px;
-            padding: 12px;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 600px;
-            text-align: center;
-            animation: fadeIn 2s ease-out;
-        }
-
-        /* Result Styling */
-        #result {
-            background-color: #ffffff;
+        h1 {
             color: #333;
-            border: 1px solid #ccc;
+            font-size: 20px;
         }
-
-        /* Total Amount Styling */
-        .total {
-            background-color: #e8f5e9;
-            color: #388e3c;
-            border: 1px solid #4CAF50;
+        .filter-btn {
+            background-color: #007bff;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
         }
-
-        /* Counter Styling */
-        .counter {
-            background-color: #fce4ec;
-            color: #e91e63;
-            border: 1px solid #e91e63;
-        }
-
-        /* Loading Spinner Styling */
-        .spinner {
-            display: none;
-            margin-top: 20px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top: 4px solid #4CAF50;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            textarea {
-                width: 95%;
-            }
-
-            button {
-                width: 90%;
-                font-size: 16px;
-            }
-
-            #fileUpload {
-                width: 100%;
-                padding: 12px;
-                font-size: 14px;
-            }
-
-            #clearButton {
-                width: 90%;
-                font-size: 16px;
-            }
+        .filter-btn:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
 
-    <h2>Extract and Total Amounts</h2>
-    
-    <!-- File Upload Input -->
-    <input type="file" id="fileUpload" accept=".txt" onchange="handleFileUpload()" /><br>
-    
-    <!-- Textarea for manual input -->
-    <textarea id="inputText" placeholder="Or paste messages here..."></textarea><br>
-    
-    <!-- Buttons -->
-    <button onclick="extractAmounts()">Extract Amounts</button>
-    <button id="clearButton" onclick="clearFields()">Clear</button>
-    
-    <!-- Loading Spinner -->
-    <div id="spinner" class="spinner"></div>
+<div class="container">
+    <h1>Withdrawal Calculator</h1>
 
+    <label for="fileInput">Upload Chat File:</label>
+    <input type="file" id="fileInput">
+
+    <label for="dateInput">Enter Date Range (DD/MM/YYYY - DD/MM/YYYY):</label>
+    <input type="text" id="dateInput" placeholder="e.g. 27/01/2025 - 28/01/2025">
+
+    <button class="filter-btn" onclick="filterMessages()">Fetch</button>
+    
+    <div id="output"></div>
+
+    <button onclick="extractAmounts()">Calculate</button>
     <div id="result"></div>
-    <div id="total" class="total"></div>
-    <div id="counter" class="counter"></div>
+    <div id="total"></div>
+    <div id="counter"></div>
+</div>
 
-    <script>
-        // Handle File Upload
-        function handleFileUpload() {
-            let file = document.getElementById("fileUpload").files[0];
-            if (!file) {
-                alert("Please select a file.");
-                return;
-            }
+<script>
+    let filteredMessages = [];
+
+    window.onload = function() {
+        setTimeout(filterMessages, 500);
+    };
+
+    function filterMessages() {
+        const fileInput = document.getElementById("fileInput");
+        const dateInput = document.getElementById("dateInput");
+        const outputDiv = document.getElementById("output");
+
+        if (!fileInput.files[0]) {
+            return;
+        }
+
+        const dateRange = dateInput.value.split(" - ");
+        if (dateRange.length !== 2) {
+            outputDiv.innerHTML = "Invalid date range format. Use DD/MM/YYYY - DD/MM/YYYY";
+            return;
+        }
+        
+        const startDate = dateRange[0].trim();
+        const endDate = dateRange[1].trim();
+
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        
+        reader.onload = function(event) {
+            const content = event.target.result;
+            const lines = content.split('\n');
+            let currentMessage = [];
+            let isMessageInProgress = false;
             
-            if (file.type !== "text/plain") {
-                alert("Please upload a valid .txt file.");
-                return;
+            filteredMessages = [];
+            for (let line of lines) {
+                let dateMatch = line.match(/^(\d{2}\/\d{2}\/\d{4})/);
+                if (dateMatch) {
+                    let messageDate = dateMatch[1];
+                    if (messageDate >= startDate && messageDate <= endDate) {
+                        if (isMessageInProgress) {
+                            filteredMessages.push(currentMessage.join('\n'));
+                            currentMessage = [];
+                        }
+                        currentMessage.push(line);
+                        isMessageInProgress = true;
+                    } else {
+                        isMessageInProgress = false;
+                    }
+                } else if (isMessageInProgress) {
+                    currentMessage.push(line);
+                }
+            }
+            if (isMessageInProgress) {
+                filteredMessages.push(currentMessage.join('\n'));
             }
 
-            if (file.size > 1048576) { // Limit file size to 1MB
-                alert("File size is too large. Please upload a smaller file.");
-                return;
-            }
+            outputDiv.innerHTML = filteredMessages.length > 0 ? filteredMessages.join('<br/><br/>') : `No messages found for the selected range.`;
+        };
+        
+        reader.readAsText(file);
+    }
 
-            let reader = new FileReader();
-            reader.onload = function(e) {
-                let fileContent = e.target.result;
-                document.getElementById("inputText").value = fileContent;
-                extractAmounts(); // Automatically extract amounts once file is loaded
-            };
-            reader.readAsText(file);
-        }
+    function extractAmounts() {
+        let text = filteredMessages.join('\n');
+        let pattern = /(?:AMOUNT|Amount|amount)[^\d]{0,5}[\s=:~]*([\d,]+)/gi;
+        let matches = [...text.matchAll(pattern)];
+        let amounts = matches.map(match => match[1].replace(/,/g, ''));
+        let totalAmount = amounts.reduce((acc, curr) => acc + parseFloat(curr), 0);
 
-        // Extract Amounts from Text
-        function extractAmounts() {
-            document.getElementById("spinner").style.display = "block"; // Show loading spinner
-            let text = document.getElementById("inputText").value;
-
-            // Updated Regex to handle more variations
-            let pattern = /(?:AMOUNT|Amount|amount)[^\d]{0,5}[\s=:~]*([\d,]+)/gi;
-
-            let matches = [...text.matchAll(pattern)];
-
-            // Extract numbers, remove commas, and preserve duplicates
-            let amounts = matches.map(match => match[1].replace(/,/g, ''));
-
-            // Calculate the total
-            let totalAmount = amounts.reduce((acc, curr) => acc + parseFloat(curr), 0);
-
-            // Display results
-            setTimeout(function() {
-                document.getElementById("result").innerHTML = 
-                    amounts.length ? "Extracted Amounts: " + amounts.join(", ") : "No amounts found!";
-                document.getElementById("total").innerHTML = "Total Amount: ₹" + totalAmount.toFixed(2);
-                document.getElementById("counter").innerHTML = "Total Entries: " + amounts.length;
-
-                document.getElementById("spinner").style.display = "none"; // Hide loading spinner
-            }, 1500); // Simulate some delay
-        }
-
-        // Clear fields and reset
-        function clearFields() {
-            document.getElementById("inputText").value = '';
-            document.getElementById("fileUpload").value = '';
-            document.getElementById("result").innerHTML = '';
-            document.getElementById("total").innerHTML = '';
-            document.getElementById("counter").innerHTML = '';
-        }
-    </script>
+        document.getElementById("result").innerHTML = amounts.length ? "Extracted Amounts: " + amounts.join(", ") : "No amounts found!";
+        document.getElementById("total").innerHTML = "Total Amount: ₹" + totalAmount.toFixed(2);
+        document.getElementById("counter").innerHTML = "Total Entries: " + amounts.length;
+    }
+</script>
 
 </body>
 </html>
