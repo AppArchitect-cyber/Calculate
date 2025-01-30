@@ -119,7 +119,7 @@
             JSZip.loadAsync(event.target.result).then(function(zip) {
                 let txtFile = Object.keys(zip.files).find(name => name.endsWith(".txt"));
                 if (txtFile) {
-                    zip.files[txtFile].async("text").then(content => filterMessages(content));
+                    zip.files[txtFile].async("text").then(content => processMessages(content));
                 } else {
                     alert("No text file found inside ZIP.");
                 }
@@ -131,12 +131,12 @@
     function readTextFile(file) {
         const reader = new FileReader();
         reader.onload = function(event) {
-            filterMessages(event.target.result);
+            processMessages(event.target.result);
         };
         reader.readAsText(file);
     }
 
-    function filterMessages(content) {
+    function processMessages(content) {
         const dateInput = document.getElementById("dateInput");
         const outputDiv = document.getElementById("output");
         
@@ -148,10 +148,22 @@
         
         const startDate = dateRange[0].trim();
         const endDate = dateRange[1].trim();
-        const lines = content.split('\n');
         
-        filteredMessages = lines.filter(line => {
-            let dateMatch = line.match(/^\d{2}\/\d{2}\/\d{4}/);
+        const messages = [];
+        let currentMessage = "";
+
+        content.split('\n').forEach(line => {
+            if (/^\d{2}\/\d{2}\/\d{4}/.test(line)) {
+                if (currentMessage) messages.push(currentMessage);
+                currentMessage = line;
+            } else {
+                currentMessage += " " + line.trim();
+            }
+        });
+        if (currentMessage) messages.push(currentMessage);
+        
+        filteredMessages = messages.filter(msg => {
+            let dateMatch = msg.match(/^\d{2}\/\d{2}\/\d{4}/);
             if (dateMatch) {
                 let messageDate = dateMatch[0];
                 return messageDate >= startDate && messageDate <= endDate;
