@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Withdrawal Calculator</title>
+    <title>WhatsApp Chat Filter & Amount Calculator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -76,19 +77,19 @@
 <body>
 
 <div class="container">
-    <h1>Withdrawal Calculator</h1>
+    <h1>WhatsApp Chat Filter & Amount Calculator</h1>
 
-    <label for="fileInput">Upload Chat File:</label>
-    <input type="file" id="fileInput">
+    <label for="fileInput">Upload Chat File (ZIP or TXT):</label>
+    <input type="file" id="fileInput" accept=".zip,.txt">
 
     <label for="dateInput">Enter Date Range (DD/MM/YYYY - DD/MM/YYYY):</label>
     <input type="text" id="dateInput" placeholder="e.g. 27/01/2025 - 28/01/2025">
 
-    <button class="filter-btn" onclick="filterMessages()">Fetch</button>
+    <button class="filter-btn" onclick="handleFile()">Filter Messages</button>
     
     <div id="output"></div>
 
-    <button onclick="extractAmounts()">Calculate</button>
+    <button onclick="extractAmounts()">Extract Amounts</button>
     <div id="result"></div>
     <div id="total"></div>
     <div id="counter"></div>
@@ -97,19 +98,48 @@
 <script>
     let filteredMessages = [];
 
-    window.onload = function() {
-        setTimeout(filterMessages, 500);
-    };
-
-    function filterMessages() {
+    function handleFile() {
         const fileInput = document.getElementById("fileInput");
+        const file = fileInput.files[0];
+        
+        if (!file) return;
+        
+        if (file.name.endsWith(".zip")) {
+            handleZipFile(file);
+        } else if (file.name.endsWith(".txt")) {
+            readTextFile(file);
+        } else {
+            alert("Invalid file format. Please upload a .zip or .txt file.");
+        }
+    }
+
+    function handleZipFile(file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            JSZip.loadAsync(event.target.result).then(function(zip) {
+                let txtFile = Object.keys(zip.files).find(name => name.endsWith(".txt"));
+                if (txtFile) {
+                    zip.files[txtFile].async("text").then(content => filterMessages(content));
+                } else {
+                    alert("No text file found inside ZIP.");
+                }
+            });
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    function readTextFile(file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            filterMessages(event.target.result);
+        };
+        reader.readAsText(file);
+    }
+
+    function filterMessages(content) {
         const dateInput = document.getElementById("dateInput");
         const outputDiv = document.getElementById("output");
-
-        if (!fileInput.files[0]) {
-            return;
-        }
-
+        
         const dateRange = dateInput.value.split(" - ");
         if (dateRange.length !== 2) {
             outputDiv.innerHTML = "Invalid date range format. Use DD/MM/YYYY - DD/MM/YYYY";
@@ -118,43 +148,18 @@
         
         const startDate = dateRange[0].trim();
         const endDate = dateRange[1].trim();
-
-        const file = fileInput.files[0];
-        const reader = new FileReader();
+        const lines = content.split('\n');
         
-        reader.onload = function(event) {
-            const content = event.target.result;
-            const lines = content.split('\n');
-            let currentMessage = [];
-            let isMessageInProgress = false;
-            
-            filteredMessages = [];
-            for (let line of lines) {
-                let dateMatch = line.match(/^(\d{2}\/\d{2}\/\d{4})/);
-                if (dateMatch) {
-                    let messageDate = dateMatch[1];
-                    if (messageDate >= startDate && messageDate <= endDate) {
-                        if (isMessageInProgress) {
-                            filteredMessages.push(currentMessage.join('\n'));
-                            currentMessage = [];
-                        }
-                        currentMessage.push(line);
-                        isMessageInProgress = true;
-                    } else {
-                        isMessageInProgress = false;
-                    }
-                } else if (isMessageInProgress) {
-                    currentMessage.push(line);
-                }
+        filteredMessages = lines.filter(line => {
+            let dateMatch = line.match(/^\d{2}\/\d{2}\/\d{4}/);
+            if (dateMatch) {
+                let messageDate = dateMatch[0];
+                return messageDate >= startDate && messageDate <= endDate;
             }
-            if (isMessageInProgress) {
-                filteredMessages.push(currentMessage.join('\n'));
-            }
+            return false;
+        });
 
-            outputDiv.innerHTML = filteredMessages.length > 0 ? filteredMessages.join('<br/><br/>') : `No messages found for the selected range.`;
-        };
-        
-        reader.readAsText(file);
+        outputDiv.innerHTML = filteredMessages.length > 0 ? filteredMessages.join('<br/><br/>') : `No messages found for the selected range.`;
     }
 
     function extractAmounts() {
