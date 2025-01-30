@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extract and Total Amounts</title>
+    <style>
+        /* Body Styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f7f8fc;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            box-sizing: border-box;
+            overflow: hidden;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        /* FadeIn Animation */
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* Heading Styling */
+        h2 {
+            font-size: 30px;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+            animation: slideInFromTop 1s ease-in-out;
+        }
+
+        /* SlideIn Animation */
+        @keyframes slideInFromTop {
+            0% {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* File Upload Input Styling */
+        #fileUpload {
+            margin-top: 20px;
+            padding: 12px;
+            font-size: 16px;
+            color: #333;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            display: inline-block;
+            width: auto;
+            opacity: 0;
+            animation: fadeIn 2s forwards;
+        }
+
+        /* Textarea Styling */
+        textarea {
+            width: 90%;
+            max-width: 600px;
+            height: 200px;
+            padding: 12px;
+            font-size: 16px;
+            color: #333;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            resize: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus {
+            border-color: #4CAF50;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            outline: none;
+        }
+
+        /* Button Styling */
+        button {
+            margin-top: 20px;
+            padding: 12px 30px;
+            font-size: 18px;
+            color: #fff;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        button:active {
+            background-color: #388e3c;
+            transform: scale(1);
+        }
+
+        /* Clear Button Styling */
+        #clearButton {
+            margin-top: 10px;
+            padding: 12px 30px;
+            font-size: 18px;
+            color: #fff;
+            background-color: #f44336;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        #clearButton:hover {
+            background-color: #e53935;
+            transform: scale(1.05);
+        }
+
+        #clearButton:active {
+            background-color: #c62828;
+            transform: scale(1);
+        }
+
+        /* Result Section Styling */
+        #result, #total, #counter {
+            margin-top: 20px;
+            padding: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+            animation: fadeIn 2s ease-out;
+        }
+
+        /* Result Styling */
+        #result {
+            background-color: #ffffff;
+            color: #333;
+            border: 1px solid #ccc;
+        }
+
+        /* Total Amount Styling */
+        .total {
+            background-color: #e8f5e9;
+            color: #388e3c;
+            border: 1px solid #4CAF50;
+        }
+
+        /* Counter Styling */
+        .counter {
+            background-color: #fce4ec;
+            color: #e91e63;
+            border: 1px solid #e91e63;
+        }
+
+        /* Loading Spinner Styling */
+        .spinner {
+            display: none;
+            margin-top: 20px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #4CAF50;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            textarea {
+                width: 95%;
+            }
+
+            button {
+                width: 90%;
+                font-size: 16px;
+            }
+
+            #fileUpload {
+                width: 100%;
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            #clearButton {
+                width: 90%;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Extract and Total Amounts</h2>
+    
+    <!-- File Upload Input -->
+    <input type="file" id="fileUpload" accept=".txt" onchange="handleFileUpload()" /><br>
+    
+    <!-- Textarea for manual input -->
+    <textarea id="inputText" placeholder="Or paste messages here..."></textarea><br>
+    
+    <!-- Buttons -->
+    <button onclick="extractAmounts()">Extract Amounts</button>
+    <button id="clearButton" onclick="clearFields()">Clear</button>
+    
+    <!-- Loading Spinner -->
+    <div id="spinner" class="spinner"></div>
+
+    <div id="result"></div>
+    <div id="total" class="total"></div>
+    <div id="counter" class="counter"></div>
+
+    <script>
+        // Handle File Upload
+        function handleFileUpload() {
+            let file = document.getElementById("fileUpload").files[0];
+            if (!file) {
+                alert("Please select a file.");
+                return;
+            }
+            
+            if (file.type !== "text/plain") {
+                alert("Please upload a valid .txt file.");
+                return;
+            }
+
+            if (file.size > 1048576) { // Limit file size to 1MB
+                alert("File size is too large. Please upload a smaller file.");
+                return;
+            }
+
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                let fileContent = e.target.result;
+                document.getElementById("inputText").value = fileContent;
+                extractAmounts(); // Automatically extract amounts once file is loaded
+            };
+            reader.readAsText(file);
+        }
+
+        // Extract Amounts from Text
+        function extractAmounts() {
+            document.getElementById("spinner").style.display = "block"; // Show loading spinner
+            let text = document.getElementById("inputText").value;
+
+            // Updated Regex to handle more variations
+            let pattern = /(?:AMOUNT|Amount|amount)[^\d]{0,5}[\s=:~]*([\d,]+)/gi;
+
+            let matches = [...text.matchAll(pattern)];
+
+            // Extract numbers, remove commas, and preserve duplicates
+            let amounts = matches.map(match => match[1].replace(/,/g, ''));
+
+            // Calculate the total
+            let totalAmount = amounts.reduce((acc, curr) => acc + parseFloat(curr), 0);
+
+            // Display results
+            setTimeout(function() {
+                document.getElementById("result").innerHTML = 
+                    amounts.length ? "Extracted Amounts: " + amounts.join(", ") : "No amounts found!";
+                document.getElementById("total").innerHTML = "Total Amount: ₹" + totalAmount.toFixed(2);
+                document.getElementById("counter").innerHTML = "Total Entries: " + amounts.length;
+
+                document.getElementById("spinner").style.display = "none"; // Hide loading spinner
+            }, 1500); // Simulate some delay
+        }
+
+        // Clear fields and reset
+        function clearFields() {
+            document.getElementById("inputText").value = '';
+            document.getElementById("fileUpload").value = '';
+            document.getElementById("result").innerHTML = '';
+            document.getElementById("total").innerHTML = '';
+            document.getElementById("counter").innerHTML = '';
+        }
+    </script>
+
+</body>
+</html>
