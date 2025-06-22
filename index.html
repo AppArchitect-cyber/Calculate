@@ -82,19 +82,42 @@
         }
 
         #output, #savedEntries {
-            margin-top: 20px;
-            font-size: 18px;
-            font-weight: 600;
-            text-align: left;
-            background-color: #ffffff;
-            border-radius: 8px;
-            padding: 15px;
-            color: #2980b9;
-            width: 80%;
-            max-width: 350px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin: 20px auto;
-        }
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: 600;
+    text-align: left;
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 15px;
+    color: #2980b9;
+    width: 80%;
+    max-width: 350px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 20px auto;
+
+    /* Add scrolling */
+    max-height: 250px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+
+/* Optional: Style the scrollbars (Chrome/WebKit) */
+#output::-webkit-scrollbar,
+#savedEntries::-webkit-scrollbar {
+    width: 8px;
+}
+
+#output::-webkit-scrollbar-thumb,
+#savedEntries::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px;
+}
+
+#output::-webkit-scrollbar-track,
+#savedEntries::-webkit-scrollbar-track {
+    background: transparent;
+}
+
 
         #savedEntries h3 {
             color: #2980b9;
@@ -177,6 +200,12 @@
 
         let date = formatDate(); // Get formatted date
 
+        // Function to check if a date is present in the text
+        function containsDate(text) {
+            const dateRegex = /\b(\d{2})\/(\d{2})\/(\d{2})\b/;
+            return dateRegex.test(text);
+        }
+
         document.getElementById("dropZone").addEventListener("click", () => {
             document.getElementById("fileInput").click();
         });
@@ -221,7 +250,7 @@
                 rows.forEach(row => {
                     if (Array.isArray(row)) {
                         row.forEach(cell => {
-                            if (typeof cell === "string") {
+                            if (typeof cell === "string" && !containsDate(cell)) {
                                 let match = cell.match(amountRegex);
                                 if (match) {
                                     let amount = parseInt(match[1].replace(/,/g, ""));
@@ -234,38 +263,46 @@
                 });
 
                 document.getElementById("output").innerHTML = 
-                    `<p>Extracted Amounts: ${extractedAmounts.join(", ")}</p>
-                    <p>Total Amount: <b>₹${totalAmount.toLocaleString()}</b></p>`;
+    `<p>Extracted Amounts: ${extractedAmounts.join(", ")}</p>
+    <p>Total Entries: ${extractedAmounts.length}</p>
+    <p>Total Amount: <b>₹${totalAmount.toLocaleString()}</b></p>`;
+
             };
 
             reader.readAsArrayBuffer(fileInput);
         }
 
         function saveEntry() {
-            const name = document.getElementById("nameInput").value.trim();
-            if (!name || extractedAmounts.length === 0) {
-                document.getElementById("savedEntries").innerHTML += "<p>Please extract and enter a name first.</p>";
-                return;
-            }
+    const name = document.getElementById("nameInput").value.trim();
+    if (!name || extractedAmounts.length === 0) {
+        document.getElementById("savedEntries").innerHTML += "<p>Please extract and enter a name first.</p>";
+        return;
+    }
 
-            if (!savedData[name]) {
-                savedData[name] = totalAmount;
-            }
+    // Save total amount and number of entries for the person
+    savedData[name] = {
+        amount: totalAmount,
+        entries: extractedAmounts.length
+    };
 
-            let savedEntriesText = `<h3>${date}<br>Total Withdraw From Group</h3>`;
-            let count = 1;
-            let totalSavedAmount = 0;
+    // Build the saved entries display
+    let savedEntriesText = `<h3>${date}<br>Total Withdraw From Group</h3>`;
+    let count = 1;
+    let totalSavedAmount = 0;
 
-            Object.keys(savedData).forEach(key => {
-                savedEntriesText += `<p>${count}. ${key} -- ₹${savedData[key].toLocaleString()}</p>`;
-                totalSavedAmount += savedData[key];
-                count++;
-            });
+    Object.keys(savedData).forEach(key => {
+        const entry = savedData[key];
+        savedEntriesText += `<p>${count}. ${key} -- ₹${entry.amount.toLocaleString()} (${entry.entries})</p>`;
+        totalSavedAmount += entry.amount;
+        count++;
+    });
 
-            savedEntriesText += `<p>Total -- ₹${totalSavedAmount.toLocaleString()}</p>`;
+    
+    savedEntriesText += `<p><b>Total -- ₹${totalSavedAmount.toLocaleString()}</b></p>`;
 
-            document.getElementById("savedEntries").innerHTML = savedEntriesText;
-        }
+    document.getElementById("savedEntries").innerHTML = savedEntriesText;
+}
+
     </script>
 </body>
 </html>
